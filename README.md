@@ -1,6 +1,6 @@
 # Hack K-State 2016: Data Science Challenge For Social Good
 
-In this hackathon challenge(https://zslie.github.io/), we build BetterDAI(http://betterdai.tech): a web application that apply hardcore
+In this hackathon challenge(https://zslie.github.io/), we build BetterDAI(https://devpost.com/software/betterdai): a web application that apply hardcore
 data analysis and machine learning to ensure hospital patients are treated correct.
 
 The goal is to predict which patients will be re-admitted to the hospital within 30 days of their discharge. 

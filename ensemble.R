@@ -252,6 +252,7 @@ apply(mtrain[,1:6], 2, function(x) mse(y,x)) #auc
 pred_train <- (4*mtrain[,1]+1*mtrain[,2]+1*mtrain[,3]+8*mtrain[,4]+2*mtrain[,5])/16#;auc(y,pred_train)
 #mse:0.175,auc:0.6266476
 sum(1-abs(y-pred_train)/2)/length(pred) 
+
 #82.3% prediction correct
 
 #pred <- as.integer(pred_train>0.756)
