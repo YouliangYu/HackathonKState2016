@@ -1,0 +1,111 @@
+---
+title: "Exploratory data analysis for Predicting Hospital Readmissions"
+author: "Youliang Yu"
+date: "Nov. 11, 2016"
+output: html_document
+---
+   
+```{r, warning=FALSE,results=FALSE,cache=FALSE, results=FALSE} 
+library(caret)  
+library(data.table)  
+cat("load data")
+train <- fread('data/Challenge_1_Training.csv',header =TRUE,stringsAsFactors = FALSE,na.strings=c("?","No","NO","None",""),data.table= FALSE)
+ 
+```
+
+```{r, echo=FALSE, warning=FALSE} 
+
+cat("readimitted")
+unique(train[,50])
+cat("There are NA labels involved, remove them first.")
+train <- train[!is.na(train$readmitted),]
+cat("check fraction of patients get admitted >30 days")
+y = as.integer(as.factor(train$readmitted))-1
+mean(y)
+cat("About 3 quarters, no problem.")
+train <- train[,-c(1,2)]
+cat("Check levels for each variables since most variables are discrete.")
+apply(train,2,function(x) length(unique(x)))
+cat("Diagnosis 1/2/3 in train intersect with test set since only 500 out of 800/900 appears in train...")
+cat("check NA fraction in each var")
+apply(train, 2, function(x) sum(is.na(x))/nrow(train)*100)
+cat("For almost all 24 features for medications, over 90% of them are NAs, 6 of them gives 100% NAs, each feature only have 4 levels, they are basically dummy variables. They are probably not strong predictors")
+cat("Visualize other features")
+plot_vars <- names(train[,-c(17:19,23:45)]) 
+
+count <- {}
+for (f in plot_vars){
+  count[[f]] <- table(y, train[[f]])
+} 
+
+for (i in seq(1, 20, 4)){
+  #for (i in seq(1, 302, 4)){ 
+  par(mfrow=c(2,2))
+  for (f in plot_vars[i:(i+3)]){
+    barplot(count[[f]], ylab="#", main=paste(f,"Count"), legend.text = TRUE, cex.names= 0.75)
+#    barplot(count[[f]], ylab="#", main=paste(f,"Count"),legend.text=TRUE,beside=TRUE, cex = 0.75)
+  }
+}
+
+cat("Notice 'change' is a contant feature, there are several other features are constant, shouldn't be helping in predicting, to remove.")
+cst_vars <- names(train)[apply(train, 2, function(x) length(unique(x))==1)]
+for (f in cst_vars){train[[f]] <- NULL} 
+cat("Also, no noticable feature surpress target-mean significantly")
+
+```
+
+
+
+```{r, echo=FALSE, warning=FALSE}
+cat("try visualization using tSNE, replace variables with target-mean")
+cat("t-Distributed Stochastic Neighbor Embedding(tsne) is a dimensionality reduction technique that maps the feature space to
+low dimensional space(usually 2 or 3) such that distribution of distances between training samples stays the same")
+ 
+train$readmitted <- y
+ 
+for(f in names(train)) { 
+  if(is.character(train[[f]])) {
+#    levels <- unique(test[[f]])
+#    target.means <- unlist(lapply(levels, function(x) x=mean(train[,"readmitted"][train[,f]==x],na.rm = T)))
+#    names(target.means) <- levels
+#    tmp <- rep(NA, nrow(test))
+#    tmp[!is.na(test[[f]])] <- unlist(lapply(test[[f]][!is.na(test[[f]])], function(x) x = target.means[[x]]))
+#    test[[f]] <- tmp
+    temp <- rep(NA, nrow(train)) 
+    for(i in 1:5) {
+      ids.1 <- -seq(i, nrow(train), by=5)
+      ids.2 <- seq(i, nrow(train), by=5)
+      levels <- unique(train[ids.2,f])
+      target.means <- unlist(lapply(levels, function(x) x=mean(train[ids.1,"readmitted"][train[ids.1,f]==x],na.rm = T)))
+      names(target.means) <- levels
+      temp[ids.2][!is.na(train[ids.2,f])] <- unlist(lapply(train[ids.2,f][!is.na(train[ids.2,f])], function(x) x = target.means[[x]]))
+    }
+    train[[f]] <- temp
+  }
+}
+
+train[is.na(train)] <- 0;#test[is.na(testx)] <- 0
+train$readmitted <- NULL; #test$readmitted <- NULL
+
+#for (f in plot_vars){trainx[[f]]<-NULL;testx[[f]]<-NULL}
+ 
+library(Rtsne) 
+tsne_targetmean<- Rtsne(as.matrix(rbind(train)), check_duplicates =FALSE, PCA =T, verbose=TRUE,
+                  perplexity=30, theta=0.5, dims=2, max_iter=800)
+palette(c("red", "blue"))
+target = factor(y)
+qplot(tsne_targetmean$Y[,1],tsne_targetmean$Y[,2], xlab="Y1", ylab="Y2") + aes(shape = target)+aes(colour = target)+ scale_shape(solid = FALSE) 
+
+cat("On this 2D clustering pic, one could hardly see much of the 2 classes separable, indicating the target weakly depends on features")
+
+cat("Will dig more on the relation between target and features, probably non-linear")
+
+#train <- cbind(y,train)
+#idx <- sample(1:nrow(train), 0.5*nrow(train),replace = F)
+#train_centroids <- classDist(train[idx,-1],train[idx,1]) #get centroids' formulas
+#train_distances <- predict(train_centroids, train[-idx,-1]) #parse centroid distances on current dataset
+#train_distances <- as.data.frame(train_distances) #turn data into data frame
+#names(train[,-1])
+
+```  
+  
