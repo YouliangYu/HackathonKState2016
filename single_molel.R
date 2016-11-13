@@ -44,7 +44,7 @@ train[is.na(train)] <- 0; test[is.na(test)] <- 0
 set.seed(1229);dtrain <- xgb.DMatrix(as.matrix(train), label = y)
 param <- list(booster ="gbtree", objective = 'binary:logistic', eval_metric = 'rmse',
               nthread = 6,eta = 0.01, colsample_bytree = 0.4, subsample = 0.8, max_depth = 6, min_child_weight=11)
-#bst.cv = xgb.cv(param=param, data = dtrain, nfold = 5, nrounds = 5000, early.stop.round = 50)
+bst.cv = xgb.cv(param=param, data = dtrain, nfold = 5, nrounds = 5000, early.stop.round = 50)
 #[460]	train-rmse:0.402558+0.000524	test-rmse:0.419567+0.003207
 #tmp <- bst.cv$test.rmse.mean; n=which(tmp==min(tmp))[1]
 n=913;bst <- xgb.train(params=param, data=dtrain, nround = as.integer(n/0.8))

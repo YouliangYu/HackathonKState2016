@@ -247,8 +247,10 @@ mtest[,i] <- predict(clf,newx=as.matrix(test), s="lambda.min",type="response")
 # stacking not work so well for this dataset, not as good as simple averaging~
 
 #apply(mtrain[,1:6], 2, function(x) auc(y,x)) #auc
+
 apply(mtrain[,1:6], 2, function(x) mse(y,x)) #auc
-pred_train <- (4*mtrain[,1]+1*mtrain[,2]+1*mtrain[,3]+8*mtrain[,4]+2*mtrain[,5])/16;mse(y,pred_train)
+pred_train <- (4*mtrain[,1]+1*mtrain[,2]+1*mtrain[,3]+8*mtrain[,4]+2*mtrain[,5])/16#;auc(y,pred_train)
+#mse:0.175,auc:0.6266476
 sum(1-abs(y-pred_train)/2)/length(pred) 
 #82.3% prediction correct
 
