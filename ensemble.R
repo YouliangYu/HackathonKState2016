@@ -4,54 +4,9 @@
 #date: "Nov. 11, 2016"                                                     ##      
 #############################################################################
 
-rm(list=ls())
-#load data
-library(caret)
-library(data.table)  
-train <- fread('data/Challenge_1_Training.csv',header =TRUE,stringsAsFactors = FALSE,na.strings=c("?","No","NO","None",""),data.table= FALSE)
-#test <- fread('data/Challenge_1_Training.csv',header =TRUE,stringsAsFactors = FALSE,na.strings=c("?","No","NO","None",""),data.table= FALSE)
+rm(list=ls()) 
+#build models and ensemble")
 
-#get tsne features
-train <- train[!is.na(train$readmitted),] # remove NA label samples
-y = as.integer(as.factor(train$readmitted))-1;trainID <- train[, 2]
-train <- train[,-c(1,2)] # remove IDs
-#apply(train, 2, function(x) sum(is.na(x))/nrow(train)*100)
-cst_vars <- names(train)[apply(train, 2, function(x) length(unique(x))==1)]; for (f in cst_vars){train[[f]] <- NULL} 
-train$readmitted <- y; medi_vars <- names(train[,c(23:40)]) 
-
-for(f in names(train)) { 
-  if(is.character(train[[f]])) {
-    #    levels <- unique(test[[f]])
-    #    target.means <- unlist(lapply(levels, function(x) x=mean(train[,"readmitted"][train[,f]==x],na.rm = T)))
-    #    names(target.means) <- levels
-    #    tmp <- rep(NA, nrow(test))
-    #    tmp[!is.na(test[[f]])] <- unlist(lapply(test[[f]][!is.na(test[[f]])], function(x) x = target.means[[x]]))
-    #    test[[f]] <- tmp
-    temp <- rep(NA, nrow(train)) 
-    for(i in 1:5) {
-      ids.1 <- -seq(i, nrow(train), by=5)
-      ids.2 <- seq(i, nrow(train), by=5)
-      levels <- unique(train[ids.2,f])
-      target.means <- unlist(lapply(levels, function(x) x=mean(train[ids.1,"readmitted"][train[ids.1,f]==x],na.rm = T)))
-      names(target.means) <- levels
-      temp[ids.2][!is.na(train[ids.2,f])] <- unlist(lapply(train[ids.2,f][!is.na(train[ids.2,f])], function(x) x = target.means[[x]]))
-    }
-    train[[f]] <- temp
-  }
-}
-
-train[is.na(train)] <- 0
-train$readmitted <- NULL
-  
-library(Rtsne)
-tsne_targetmean<- Rtsne(as.matrix(rbind(train)), check_duplicates =FALSE, PCA =T, verbose=TRUE,
-                  perplexity=30, theta=0.5, dims=2, max_iter=800)
-#palette(c("red", "blue"))
-#target = factor(y)
-#qplot(tsne_targetmean$Y[,1],tsne_targetmean$Y[,2], xlab="Y1", ylab="Y2") + aes(shape = target)+aes(colour = target)+ scale_shape(solid = FALSE) 
-
- 
-cat("Build model and ensemble")
 library(xgboost)
 library(ranger)
 library(Metrics)
@@ -236,9 +191,9 @@ apply(mtrain, 2, function(x) rmse(y,x))
 set.seed(1229)
 #idx <- sample(1:nrow(train), nrow(train), replace =FALSE)
 #train <- train[idx,]; y <- y[idx]
-dtrain <- xgb.DMatrix(as.matrix(cbind(mtrain)), label = y)
+dtrain <- xgb.DMatrix(as.matrix(cbind(train,tsne_targetmean$Y)), label = y)
 param <- list(booster ="gbtree", objective = 'binary:logistic', eval_metric = 'rmse',
-              nthread = 6,eta = 0.01, colsample_bytree = 0.4, subsample = 0.8, max_depth = 6, min_child_weight=11)
+              nthread = 6,eta = 0.02, colsample_bytree = 0.4, subsample = 0.8, max_depth = 6, min_child_weight=11)
 bst.cv = xgb.cv(param=param, data = dtrain, nfold = 5, nrounds = 5000, early.stop.round = 20)
 tmp <- bst.cv$test.rmse.mean; n=which(tmp==min(tmp))[1]
 

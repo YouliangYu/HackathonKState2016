@@ -1,6 +1,6 @@
 # Hack K-State 2016: Data Science Challenge For Social Good
 
-In this challenge, we build BetterDAI: a web application that leverages hardcore
+In this challenge(https://zslie.github.io/), we build BetterDAI: a web application that leverages hardcore
 data analysis to ensure hospital patients are treated correct.
 
 Our goal was to predict which patients will be re-admitted to the hospital within 30 days of their discharge. 
