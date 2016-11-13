@@ -8,7 +8,7 @@ This is a real problem for hospitals, who don't get paid for a re-admission if i
 after the patient was discharged, and patients, who would like to live their life outside the walls of 
 a hospital and be healthy.
 
-This repo includes the back end machine learning algorithms that carry out the prediction.    
+This repo includes the back-end machine learning algorithm that carries out the prediction as well as the data preprocessing and data visualization.    
 
 The full web app repo could be found at https://github.com/srjayhawkfan/HackKState2016 
 
