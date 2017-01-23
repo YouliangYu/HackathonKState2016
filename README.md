@@ -4,7 +4,7 @@ In this hackathon challenge, we build BetterDAI(https://devpost.com/software/bet
 
 The goal is to predict which patients will be re-admitted to the hospital within 30 days of their discharge. This is a real problem for hospitals, who don't get paid for a re-admission if it happens within 30 days after the patient was discharged, and patients, who would like to live their life outside the walls of a hospital and be healthy.
 
-This repository first includes a quick and dirty exploratory data analysis, involving data preprocessing as well as basic data visualization, which could be found in EDA_Visualization.Rmd. The back-end machine learning algorithm that actually carries out the prediction could be found in ensemble.R, which consists of one linear regression model and four decision tree models. This final model achieved around 95% accuracy for an independent test dataset during the final MLH demo and eventually won the Data Science Challenge For Social Good.
+This repository first includes a quick and dirty exploratory data analysis, involving data preprocessing as well as basic data visualization, which could be found in EDA_Visualization.Rmd. The back-end machine learning algorithm that actually carries out the prediction could be found in ensemble.R, which consists of one logistic classification model and four decision tree models. This final model achieved around 95% accuracy for an independent test dataset during the final MLH demo and eventually won the Data Science Challenge For Social Good.
 
 The full web app repository could be found at https://github.com/srjayhawkfan/HackKState2016 
 
